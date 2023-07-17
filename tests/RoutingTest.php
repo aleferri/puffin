@@ -21,13 +21,13 @@ final class RoutingTest extends TestCase {
         $empty_query = [];
 
         $request = new SimpleRequest(
-            HTTPMethod::of( 'GET' ),
-                            '/404',
-                            $empty_query,
-                            [],
-                            RequestOrigin::localhost(),
-                            Cookies::empty(),
-                            null
+                HTTPMethod::of( 'GET' ),
+                '/404',
+                $empty_query,
+                [],
+                RequestOrigin::localhost(),
+                Cookies::empty(),
+                null
         );
 
         $response = $router->route( $request, $collection );
@@ -51,13 +51,13 @@ final class RoutingTest extends TestCase {
         $collection->get( '/@name', $route );
 
         $request = new SimpleRequest(
-            HTTPMethod::of( 'GET' ),
-                            '/anything',
-                            [],
-                            [],
-                            RequestOrigin::localhost(),
-                            Cookies::empty(),
-                            null
+                HTTPMethod::of( 'GET' ),
+                '/anything',
+                [],
+                [],
+                RequestOrigin::localhost(),
+                Cookies::empty(),
+                null
         );
 
         $response = $router->route( $request, $collection );
@@ -71,13 +71,13 @@ final class RoutingTest extends TestCase {
         $default = new SimpleResponse( 404 );
 
         $request = new SimpleRequest(
-            HTTPMethod::of( 'GET' ),
-                            '/api/protected/v1/ok',
-                            [],
-                            [],
-                            RequestOrigin::localhost(),
-                            Cookies::empty(),
-                            null
+                HTTPMethod::of( 'GET' ),
+                '/api/protected/v1/ok',
+                [],
+                [],
+                RequestOrigin::localhost(),
+                Cookies::empty(),
+                null
         );
 
         $router = new SimpleRouter( $default );
@@ -117,13 +117,13 @@ final class RoutingTest extends TestCase {
         $collection->put( '/@name', $route );
 
         $request = new SimpleRequest(
-            HTTPMethod::emulate( 'PUT', 'POST' ),
-                                 '/anything',
-                                 [],
-                                 [],
-                                 RequestOrigin::localhost(),
-                                 Cookies::empty(),
-                                 null
+                HTTPMethod::emulate( 'PUT', 'POST' ),
+                '/anything',
+                [],
+                [],
+                RequestOrigin::localhost(),
+                Cookies::empty(),
+                null
         );
 
         $response = $router->route( $request, $collection );
@@ -149,13 +149,13 @@ final class RoutingTest extends TestCase {
         $collection->custom( 'QUERY /@name', $route );
 
         $request = new SimpleRequest(
-            HTTPMethod::custom( 'QUERY', 'POST' ),
-                                '/anything',
-                                [],
-                                [],
-                                RequestOrigin::localhost(),
-                                Cookies::empty(),
-                                null
+                HTTPMethod::custom( 'QUERY', 'POST' ),
+                '/anything',
+                [],
+                [],
+                RequestOrigin::localhost(),
+                Cookies::empty(),
+                null
         );
 
         $response = $router->route( $request, $collection );
@@ -164,5 +164,4 @@ final class RoutingTest extends TestCase {
         $this->assertEquals( $response->headers(), [] );
         $this->assertEquals( $response->body(), 'anything' );
     }
-
 }

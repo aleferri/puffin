@@ -81,6 +81,26 @@ class HTTPServer {
         );
     }
 
+    public static function accept_fake(string $request_method, string $request_uri, array $headers, array $query): Request {
+        $method = self::resolve_method( $request_method, $headers );
+
+        if ( $method->id === null ) {
+            exit();
+        }
+
+        $request_body = body\BodyFactory::of( $method, $headers );
+
+        return new SimpleRequest(
+                $method,
+                $request_uri,
+                $query,
+                $headers,
+                new RequestOrigin( '127.0.0.1', 'none' ),
+                Cookies::recover(),
+                $request_body,
+        );
+    }
+
     public static function send(Response $r): void {
         http_response_code( $r->status() );
         foreach ( $r->headers() as $k => $v ) {
