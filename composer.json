@@ -1,0 +1,30 @@
+{
+    "name": "alessio/puffin",
+    "description": "Very minimal framework for web applications",
+    "type": "library",
+    "autoload": {
+        "psr-4": {
+            "puffin\\": "src/"
+        },
+        "files": [
+            "src\\template\\template.php",
+            "src\\lambda\\foundation.php",
+            "src\\data\\factory.php"
+        ]
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.3",
+        "psalm/phar": "^5.2"
+    },
+    "require": {
+        "php": ">=8.0"
+    },
+    "license": "Apache-2",
+    "authors": [
+        {
+            "name": "Alessio Ferri",
+            "email": "alessio.ferri.3012@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable"
+}
