@@ -33,7 +33,7 @@ include('Guest.php');
 class WebFingerTest extends TestCase {
 
     public function testSimpleRequest(): void {
-        $temp = fopen( "logtest_webfinger.log", 'w' );
+        $temp = fopen( "tests_logs/logtest_webfinger.log", 'w' );
         $sink = new FileSink( $temp );
 
         $logger = new LoggerSink( $sink, LOG_INFO );

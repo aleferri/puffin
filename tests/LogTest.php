@@ -22,8 +22,10 @@ use \puffin\io\FileSink;
 
 final class LogTest extends TestCase {
 
+    public const LOG_FILE_PATH = 'tests_logs/logtest.log';
+
     public function testFilter(): void {
-        $temp = fopen( "logtest.log", 'w' );
+        $temp = fopen( self::LOG_FILE_PATH, 'w' );
         $sink = new FileSink( $temp );
 
         $logger = new LoggerSink( $sink, LOG_ERR );
@@ -33,13 +35,13 @@ final class LogTest extends TestCase {
 
         fclose( $temp );
 
-        $content = file_get_contents( 'logtest.log' );
+        $content = file_get_contents( self::LOG_FILE_PATH );
 
         $this->assertEquals( $content, "ERROR\n" );
     }
 
     public function testInterpolate(): void {
-        $temp = fopen( "logtest.log", 'w' );
+        $temp = fopen( self::LOG_FILE_PATH, 'w' );
         $sink = new FileSink( $temp );
 
         $logger = new LoggerSink( $sink, LOG_INFO );
@@ -47,9 +49,8 @@ final class LogTest extends TestCase {
         $logger->flush();
         fclose( $temp );
 
-        $content = file_get_contents( 'logtest.log' );
+        $content = file_get_contents( self::LOG_FILE_PATH );
 
         $this->assertEquals( $content, "Do whatever you want Gianluigi\n" );
     }
-
 }

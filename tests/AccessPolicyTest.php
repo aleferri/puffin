@@ -33,7 +33,7 @@ final class AccessPolicyTest extends TestCase {
     }
 
     public function testParse(): void {
-        $temp = fopen( "logtest_accesspolicyclass.log", 'w' );
+        $temp = fopen( "tests_logs/logtest_accesspolicyclass.log", 'w' );
         $sink = new FileSink( $temp );
 
         $log = new LoggerSink( $sink, LOG_INFO );
