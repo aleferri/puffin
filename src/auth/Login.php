@@ -35,6 +35,18 @@ interface Login {
     public function acting_self(): string;
 
     /**
+     * Current realm, in case of multiple realms, the main one
+     * @return string
+     */
+    public function active_realm(): string;
+
+    /**
+     * Authenticated realms
+     * @return array
+     */
+    public function auth_realms(): array;
+
+    /**
      * Authentication key used
      */
     public function auth_key(): string;

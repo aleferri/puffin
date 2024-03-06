@@ -42,6 +42,10 @@ class BitmaskGrant implements Grant {
         $this->context = $context;
     }
 
+    public function id(): string {
+        return $this->serialize();
+    }
+
     public function compose(Grant $g): Grant {
         if ( $g instanceof BitmaskGrant ) {
             if ( $g->context === $this->context ) {

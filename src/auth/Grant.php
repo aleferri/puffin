@@ -12,6 +12,12 @@ namespace puffin\auth;
 interface Grant {
 
     /**
+     * Grant id
+     * @return string
+     */
+    public function id(): string;
+
+    /**
      * Compose two Grants in the one merged grant
      */
     public function compose(Grant $g): Grant;

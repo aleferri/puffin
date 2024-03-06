@@ -31,6 +31,19 @@ class GrantsList implements Grant {
         $this->list = $list;
     }
 
+    private function sort() {
+        return usort(
+            $this->list,
+            function (Grant $a, Grant $b) {
+                return $a->id() > $b->id();
+            }
+        );
+    }
+
+    public function id(): string {
+        return json_encode( $this->sort() );
+    }
+
     public function compose(Grant $g): Grant {
         if ( $g instanceof GrantsList ) {
             $list = $this->list;
