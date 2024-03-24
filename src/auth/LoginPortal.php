@@ -43,7 +43,7 @@ interface LoginPortal {
      * Check if login is visilbe from the current login
      * @param Login $login
      */
-    public function is_visible(Login $login);
+    public function is_visible_to(Login $login);
 
     /**
      * List of routes
@@ -56,5 +56,4 @@ interface LoginPortal {
      * @return Login
      */
     public function login(): Login;
-
 }

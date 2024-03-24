@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 /**
  * @author Alessio Ferri
  * @copyright Alessio Ferri
@@ -17,9 +17,8 @@ interface Router {
 
     /**
      * Route della Request sui match disponibili
-     * @param \puffin\http\Request $r richiesta corrente
+     * @param \puffin\http\Request $request richiesta corrente
      * @param \puffin\http\RouteCollection $collection pattern e callback disponibili
      */
     public function route(Request $request, RouteCollection $collection): Response;
-
 }

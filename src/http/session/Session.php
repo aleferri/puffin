@@ -3,6 +3,7 @@
 namespace puffin\http\session;
 
 use puffin\auth\Login;
+use puffin\ext\FeatureSet;
 
 /**
  *
@@ -93,4 +94,9 @@ interface Session {
      */
     public function is_synced(): bool;
 
+    /**
+     * Session applicable FeatureSet
+     * @return FeatureSet
+     */
+    public function features(): FeatureSet;
 }

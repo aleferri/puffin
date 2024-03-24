@@ -49,12 +49,11 @@ interface UserAccount {
      * Add grant to user
      * @return void
      */
-    public function add_grant(string $id): void;
+    public function grant(string $id): void;
 
     /**
      * Remove grant from user
      * @return void
      */
-    public function remove_grant(string $id): void;
-
+    public function revoke(string $id): void;
 }

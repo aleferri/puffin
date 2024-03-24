@@ -18,8 +18,11 @@
 
 namespace puffin\log;
 
+use plog\Logger;
+use plog\LoggerHelper;
 use puffin\io\Sink;
 use puffin\io\NullSink;
+use puffin\io\FileSink;
 
 /**
  * Description of LoggerSink
@@ -35,10 +38,21 @@ class LoggerSink implements Logger {
     public static function none(): Logger {
         $sink = new NullSink();
 
-        return new self( $sink, LOG_INFO );
+        return new self( $sink, \LOG_INFO );
     }
 
-    use LoggerCore;
+    /**
+     * Create a file backed logger
+     * @param string $path
+     * @return Logger
+     */
+    public static function file(string $path): Logger {
+        $sink = new FileSink( $path );
+
+        return new self( $sink, \LOG_INFO );
+    }
+
+    use LoggerHelper;
 
     private $sink;
     private $filter;

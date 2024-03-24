@@ -18,8 +18,8 @@
 
 namespace puffin\managed;
 
+use plog\Logger;
 use puffin\auth\Grant;
-use puffin\log\Logger;
 use puffin\log\LoggerSink;
 
 /**

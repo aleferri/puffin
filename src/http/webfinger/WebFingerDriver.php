@@ -21,9 +21,9 @@
 
 namespace puffin\http\webfinger;
 
-use puffin\managed\Scope;
-use puffin\log\Logger;
+use plog\Logger;
 use puffin\log\LoggerSink;
+use puffin\managed\Scope;
 
 /**
  * Description of WebFingerDriver
@@ -69,14 +69,14 @@ class WebFingerDriver implements WebFinger {
         $links = $resource->links();
 
         $content = [
-            'subject' => $resource->uri(),
-            'aliases' => [],
-            'properties' => [],
-            'links' => $links
+                'subject'    => $resource->uri(),
+                'aliases'    => [],
+                'properties' => [],
+                'links'      => $links
         ];
 
         $headers = [
-            'Content-Type' => 'application/json'
+                'Content-Type' => 'application/json'
         ];
 
         return new WebFingerResponseSimple(

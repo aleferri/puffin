@@ -25,36 +25,19 @@ namespace puffin\auth;
  *
  * @author Alessio
  */
-interface Realm {
+interface RealmProtected extends Realm {
 
     /**
-     * Realm slug, unique
-     * @return string
+     * Grant access to an user to a realm, maybe create one if account do not exists
+     * @param UserAccount|null $account
+     * @return UserAccount|null
      */
-    public function slug(): string;
+    public function grant_access_to(?UserAccount $account): ?UserAccount;
 
     /**
-     * Full name
-     * @return string
+     * Remove an user from a realm
+     * @param UserAccount $account
+     * @return void
      */
-    public function name(): string;
-
-    /**
-     * Realm core pages
-     * @return array
-     */
-    public function pages(): array;
-
-    /**
-     * Guarded routes of the Realm
-     * @return array
-     */
-    public function guarded_routes(): array;
-
-    /**
-     * Check if a login can access the realm
-     * @param Login $login
-     * @return bool false if the login cannot access, true if it can access
-     */
-    public function is_authenticated(Login $login): bool;
+    public function revoke_access_to(UserAccount $account): void;
 }

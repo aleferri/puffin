@@ -19,42 +19,41 @@
  * under the License.
  */
 
-namespace puffin\auth;
+namespace puffin\ext;
 
 /**
  *
  * @author Alessio
  */
-interface Realm {
+interface FeatureSet {
 
     /**
-     * Realm slug, unique
-     * @return string
+     * Set a feature
+     * @param string $feature
+     * @param array $options
+     * @param string $scope
+     * @return void
      */
-    public function slug(): string;
+    public function set(string $feature, array $options = [], string $scope = 'session'): void;
 
     /**
-     * Full name
-     * @return string
+     * Get feature options
+     * @param string $feature
+     * @return array|nullù
      */
-    public function name(): string;
+    public function get(string $feature): ?array;
 
     /**
-     * Realm core pages
-     * @return array
+     * Check if a feature is enabled
+     * @param string $feature
+     * @return bool
      */
-    public function pages(): array;
+    public function is_enabled(string $feature): bool;
 
     /**
-     * Guarded routes of the Realm
-     * @return array
+     * Check if a feature is disabled
+     * @param string $feature
+     * @return bool
      */
-    public function guarded_routes(): array;
-
-    /**
-     * Check if a login can access the realm
-     * @param Login $login
-     * @return bool false if the login cannot access, true if it can access
-     */
-    public function is_authenticated(Login $login): bool;
+    public function is_disabled(string $feature): bool;
 }

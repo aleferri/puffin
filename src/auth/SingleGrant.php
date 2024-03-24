@@ -27,18 +27,22 @@ class SingleGrant implements Grant {
 
     private $grant;
 
-    public function __construct($grant) {
+    public function __construct(string $grant) {
         $this->grant = $grant;
+    }
+
+    public function id(): string {
+        return $this->grant;
     }
 
     public function compose(Grant $g): Grant {
         if ( $g instanceof SingleGrant ) {
-            return new GrantsList( [ $this->grant, $g->grant ] );
+            return new GrantsList( [ $this, $g->grant ] );
         }
 
         if ( $g instanceof GrantsList ) {
             $e = $g->flatten();
-            $e[] = $this->grant;
+            $e[] = $this;
 
             return new GrantsList( $e );
         }
@@ -81,5 +85,4 @@ class SingleGrant implements Grant {
     public function to_string(): string {
         return $this->grant;
     }
-
 }

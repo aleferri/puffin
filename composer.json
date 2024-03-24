@@ -12,12 +12,20 @@
             "src\\data\\factory.php"
         ]
     },
+    "repositories": [
+        {
+            "type": "git",
+            "url": "https://github.com/aleferri/plog.git"
+        }
+    ],
+    "minimum-stability": "stable",
     "require-dev": {
         "phpunit/phpunit": "^9.3",
         "psalm/phar": "^5.2"
     },
     "require": {
-        "php": ">=8.0"
+        "php": ">=8.0",
+        "alessio/plog": ">=0.0.1"
     },
     "license": "Apache-2",
     "authors": [
@@ -25,6 +33,5 @@
             "name": "Alessio Ferri",
             "email": "alessio.ferri.3012@gmail.com"
         }
-    ],
-    "minimum-stability": "stable"
+    ]
 }

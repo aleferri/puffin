@@ -25,36 +25,12 @@ namespace puffin\auth;
  *
  * @author Alessio
  */
-interface Realm {
+interface RealmLoginable extends RealmProtected {
 
     /**
-     * Realm slug, unique
-     * @return string
+     * Authenticate in the realm, receive a LoginPortal if a portal is accessible from the current context
+     * @param Login $login current login
+     * @return LoginPortal|null false if the portal is not visibile, return null, else the portal
      */
-    public function slug(): string;
-
-    /**
-     * Full name
-     * @return string
-     */
-    public function name(): string;
-
-    /**
-     * Realm core pages
-     * @return array
-     */
-    public function pages(): array;
-
-    /**
-     * Guarded routes of the Realm
-     * @return array
-     */
-    public function guarded_routes(): array;
-
-    /**
-     * Check if a login can access the realm
-     * @param Login $login
-     * @return bool false if the login cannot access, true if it can access
-     */
-    public function is_authenticated(Login $login): bool;
+    public function authenticate(Login $login): ?LoginPortal;
 }
