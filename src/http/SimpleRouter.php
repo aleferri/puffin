@@ -18,21 +18,21 @@ class SimpleRouter implements Router {
     }
 
     public function route(Request $request, RouteCollection $collection): Response {
-        if ( !$request->is_custom_method() ) {
+        if ( ! $request->is_custom_method() ) {
             return $this->fast_route( $request, $collection );
         }
 
-        $candidates = $collection->filter_by ( $request->method () );
+        $candidates = $collection->filter_by( $request->method() );
 
         foreach ( $candidates as $candidate ) {
             [ $complex_pattern, $handler ] = $candidate;
             [ $method, $pattern ] = explode( ' ', $complex_pattern );
-            [ $ok, $params ] = $this->match ( $request->uri (), $pattern );
+            [ $ok, $params ] = $this->match( $request->uri(), $pattern );
 
             if ( $ok && $method === $request->method_name() ) {
-                $injector = $collection->injector ();
+                $injector = $collection->injector();
 
-                return $injector ( $handler, $request, $params );
+                return $injector( $handler, $pattern, $request, $params );
             }
         }
 
@@ -40,16 +40,16 @@ class SimpleRouter implements Router {
     }
 
     public function fast_route(Request $request, RouteCollection $collection): Response {
-        $candidates = $collection->filter_by ( $request->method () );
+        $candidates = $collection->filter_by( $request->method() );
 
         foreach ( $candidates as $candidate ) {
             [ $pattern, $handler ] = $candidate;
-            [ $ok, $params ] = $this->match ( $request->uri (), $pattern );
+            [ $ok, $params ] = $this->match( $request->uri(), $pattern );
 
             if ( $ok ) {
-                $injector = $collection->injector ();
+                $injector = $collection->injector();
 
-                return $injector ( $handler, $request, $params );
+                return $injector( $handler, $pattern, $request, $params );
             }
         }
 
@@ -61,20 +61,20 @@ class SimpleRouter implements Router {
 
         //Adapted from flight-php matching algorithm, original copyright is attributed to the mantainer of the flight-php repository and his contributors
         if ( '/*' !== $pattern && $pattern !== $uri ) {
-            $last_char = substr ( $pattern, -1 );
+            $last_char = substr( $pattern, -1 );
 
-            $regex_replace = str_replace ( [ ')', '/*' ], [ ')?', '(/?|/.*?)' ], $pattern );
+            $regex_replace = str_replace( [ ')', '/*' ], [ ')?', '(/?|/.*?)' ], $pattern );
 
-            $replace_callback = function(array $matches) use (&$params): string {
+            $replace_callback = function (array $matches) use (&$params): string {
                 $params[ $matches[ 1 ] ] = null;
-                if ( isset ( $matches[ 3 ] ) ) {
+                if ( isset( $matches[ 3 ] ) ) {
                     return '(?P<' . $matches[ 1 ] . '>' . $matches[ 3 ] . ')';
                 }
 
                 return '(?P<' . $matches[ 1 ] . '>[^/\?]+)';
             };
 
-            $regex = preg_replace_callback ( '#@([\w]+)(:([^/\(\)]*))?#', $replace_callback, $regex_replace );
+            $regex = preg_replace_callback( '#@([\w]+)(:([^/\(\)]*))?#', $replace_callback, $regex_replace );
 
             // Fix trailing slash
             if ( '/' === $last_char ) {
@@ -84,17 +84,17 @@ class SimpleRouter implements Router {
             }
 
             $matches = [];
-            $result = preg_match ( '#^' . $regex . '(?:\?.*)?$#', $uri, $matches );
+            $result = preg_match( '#^' . $regex . '(?:\?.*)?$#', $uri, $matches );
 
             if ( ! $result ) {
                 return [ false, [] ];
             }
 
             foreach ( $params as $k => $v ) {
-                $params[ $k ] = ( isset ( $matches[ $k ] ) ) ? urldecode ( $matches[ $k ] ) : null;
+                $params[ $k ] = ( isset( $matches[ $k ] ) ) ? urldecode( $matches[ $k ] ) : null;
             }
 
-            $params = array_values ( $params );
+            $params = array_values( $params );
         }
 
         return [ true, $params ];

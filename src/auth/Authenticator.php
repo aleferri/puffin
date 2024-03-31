@@ -19,26 +19,21 @@
  * under the License.
  */
 
-namespace puffin\theme;
+namespace puffin\auth;
 
-use puffin\template\Renderable;
+use puffin\http\Request;
 
 /**
  *
  * @author Alessio
  */
-interface MenuEntry extends Renderable {
+interface Authenticator {
 
     /**
-     * Title
-     * @return string
+     * Authenticate the request
+     * @param Request $request
+     * @return Login
      */
-    public function title(): string;
-
-    /**
-     *
-     * @return string
-     */
-    public function link(): string;
+    public function authenticate(Request $request): Login;
 
 }

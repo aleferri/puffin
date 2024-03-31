@@ -14,17 +14,19 @@ interface SessionManager {
     public const REVOKED = 1;
 
     /**
-     * Crea la sessione
+     *
+     * @param Request $request
+     * @param bool $create
      * @return Session
      */
-    public function create(Request $request): Session;
+    public function init(Request $request, bool $create = false): Session;
 
     /**
-     * Restore della sessione
+     * Query session from id
      * @param string $id
      * @return Session
      */
-    public function restore(string $id): Session;
+    public function query(string $id): Session;
 
     /**
      * Update the session

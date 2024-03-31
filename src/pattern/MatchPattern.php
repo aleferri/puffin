@@ -58,7 +58,7 @@ class MatchPattern {
             $matches = [];
             $result = preg_match( '#^' . $regex . '(?:\?.*)?$#', $string, $matches );
 
-            if ( !$result ) {
+            if ( ! $result ) {
                 return [ false, [] ];
             }
 
@@ -71,4 +71,5 @@ class MatchPattern {
 
         return [ true, $params ];
     }
+
 }

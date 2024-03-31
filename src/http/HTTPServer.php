@@ -29,10 +29,10 @@ use puffin\http\session\Cookies;
 class HTTPServer {
 
     public const EMULATE_METHOD_HEADER = 'X-EMULATE-METHOD';
-    public const CUSTOM_METHOD_HEADER = 'X-CUSTOM-METHOD';
+    public const CUSTOM_METHOD_HEADER  = 'X-CUSTOM-METHOD';
 
     public static function current_origin(): RequestOrigin {
-        $ip = get_any( $_SERVER, 'UNKNOWN', 'HTTP_CLIENT_IP', 'REMOTE_ADDR' );
+        $ip         = get_any( $_SERVER, 'UNKNOWN', 'HTTP_CLIENT_IP', 'REMOTE_ADDR' );
         $user_agent = $_SERVER[ 'HTTP_USER_AGENT' ];
 
         return new RequestOrigin( $ip, $user_agent );
@@ -58,7 +58,7 @@ class HTTPServer {
 
     public static function accept(): Request {
         $request_method = $_SERVER[ 'REQUEST_METHOD' ] ?? 'GET';
-        $request_uri = $_SERVER[ 'REQUEST_URI' ] ?? '/';
+        $request_uri    = $_SERVER[ 'REQUEST_URI' ] ?? '/';
 
         $headers = apache_request_headers();
 
@@ -71,13 +71,7 @@ class HTTPServer {
         $request_body = body\BodyFactory::of( $method, $headers );
 
         return new SimpleRequest(
-                $method,
-                $request_uri,
-                $_GET,
-                $headers,
-                self::current_origin(),
-                                              Cookies::recover(),
-                                        $request_body,
+            $method, $request_uri, $_GET, $headers, self::current_origin(), Cookies::recover(), $request_body,
         );
     }
 
@@ -89,15 +83,10 @@ class HTTPServer {
         }
 
         $request_body = body\BodyFactory::of( $method, $headers );
+        $origin       = new RequestOrigin( '127.0.0.1', 'none' );
 
         return new SimpleRequest(
-                $method,
-                $request_uri,
-                $query,
-                $headers,
-                new RequestOrigin( '127.0.0.1', 'none' ),
-                Cookies::recover(),
-                                              $request_body,
+            $method, $request_uri, $query, $headers, $origin, Cookies::recover(), $request_body,
         );
     }
 
@@ -110,13 +99,8 @@ class HTTPServer {
         $cookies = $r->cookies();
         foreach ( $cookies as $cookie ) {
             setcookie(
-                    $cookie->name,
-                    $cookie->value,
-                    $cookie->expiration,
-                    $cookie->options->path,
-                    $cookie->options->domain,
-                    $cookie->options->secure,
-                    $cookie->options->httponly
+                $cookie->name, $cookie->value, $cookie->expiration, $cookie->options->path, $cookie->options->domain,
+                $cookie->options->secure, $cookie->options->httponly
             );
         }
 
@@ -171,11 +155,11 @@ class HTTPServer {
      * @return Response resulting response to send
      */
     public static function file(string $body, string $mime, string $filename = 'document', array $headers = []): Response {
-        $headers[ 'Content-Control' ] = 'public';
-        $headers[ 'Content-Type' ] = "{$mime};";
+        $headers[ 'Content-Control' ]           = 'public';
+        $headers[ 'Content-Type' ]              = "{$mime};";
         $headers[ 'Content-Transfer-Encoding' ] = 'Binary';
-        $headers[ 'Content-Length' ] = strlen( $body );
-        $headers[ 'Content-Disposition' ] = "attachment; filename='{$filename}'";
+        $headers[ 'Content-Length' ]            = strlen( $body );
+        $headers[ 'Content-Disposition' ]       = "attachment; filename='{$filename}'";
         return new SimpleResponse( 200, $headers, $body );
     }
 
@@ -185,17 +169,20 @@ class HTTPServer {
      * @return Response resulting response to send
      */
     public static function static_file(string $filename): Response {
-        $basename = basename( $filename );
-        $mime = mime_content_type( $filename );
-        $headers = [];
-        $headers[ 'Content-Control' ] = 'public';
-        $headers[ 'Content-Type' ] = "{$mime};";
+        $basename                               = basename( $filename );
+        $mime                                   = mime_content_type( $filename );
+        $headers                                = [];
+        $headers[ 'Content-Control' ]           = 'public';
+        $headers[ 'Content-Type' ]              = "{$mime};";
         $headers[ 'Content-Transfer-Encoding' ] = 'Binary';
-        $headers[ 'Content-Length' ] = filesize( $filename );
-        $headers[ 'Content-Disposition' ] = "attachment; filename='{$basename}'";
-        return new LazyResponse( 200, $headers, function () use ($filename): string {
-                    return file_get_contents( $filename );
-                } );
+        $headers[ 'Content-Length' ]            = filesize( $filename );
+        $headers[ 'Content-Disposition' ]       = "attachment; filename='{$basename}'";
+        return new LazyResponse(
+            200, $headers,
+            function () use ($filename): string {
+                return file_get_contents( $filename );
+            }
+        );
     }
 
     /**
@@ -215,4 +202,5 @@ class HTTPServer {
     public static function redirect(string $location): Response {
         return new SimpleResponse( 301, [ 'Location' => $location ], '' );
     }
+
 }

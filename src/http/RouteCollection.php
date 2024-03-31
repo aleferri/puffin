@@ -22,13 +22,13 @@ class RouteCollection {
     private $bins;
 
     public function __construct() {
-        $this->injector = function(callable $handler, Request $r, array $params): Response {
+        $this->injector = function (callable $handler, string $pattern, Request $r, array $params): Response {
             $params[] = $r;
 
-            return $handler ( ...$params );
+            return $handler( ...$params );
         };
-        
-        $this->bins = [ [], [], [], [], [], [] ];
+
+        $this->bins = [ [], [], [], [], [], [], [], [] ];
     }
 
     /**
@@ -52,12 +52,12 @@ class RouteCollection {
      * Register an handler for a pattern received with every method
      */
     public function any(string $pattern, callable $handler): void {
-        $this->options ( $pattern, $handler );
-        $this->get ( $pattern, $handler );
-        $this->post ( $pattern, $handler );
-        $this->put ( $pattern, $handler );
-        $this->patch ( $pattern, $handler );
-        $this->delete ( $pattern, $handler );
+        $this->options( $pattern, $handler );
+        $this->get( $pattern, $handler );
+        $this->post( $pattern, $handler );
+        $this->put( $pattern, $handler );
+        $this->patch( $pattern, $handler );
+        $this->delete( $pattern, $handler );
     }
 
     /**
@@ -65,7 +65,7 @@ class RouteCollection {
      * @param callable(array):Response $handler
      */
     public function options(string $pattern, callable $handler): void {
-        $this->route ( HTTP::METHOD_OPTIONS, $pattern, $handler );
+        $this->route( HTTP::METHOD_OPTIONS, $pattern, $handler );
     }
 
     /**
@@ -73,7 +73,7 @@ class RouteCollection {
      * @param callable(array):Response $handler
      */
     public function get(string $pattern, callable $handler): void {
-        $this->route ( HTTP::METHOD_GET, $pattern, $handler );
+        $this->route( HTTP::METHOD_GET, $pattern, $handler );
     }
 
     /**
@@ -81,7 +81,7 @@ class RouteCollection {
      * @param callable(array):Response $handler
      */
     public function post(string $pattern, callable $handler): void {
-        $this->route ( HTTP::METHOD_POST, $pattern, $handler );
+        $this->route( HTTP::METHOD_POST, $pattern, $handler );
     }
 
     /**
@@ -89,7 +89,7 @@ class RouteCollection {
      * @param callable(array):Response $handler
      */
     public function put(string $pattern, callable $handler): void {
-        $this->route ( HTTP::METHOD_PUT, $pattern, $handler );
+        $this->route( HTTP::METHOD_PUT, $pattern, $handler );
     }
 
     /**
@@ -97,7 +97,7 @@ class RouteCollection {
      * @param callable(array):Response $handler
      */
     public function patch(string $pattern, callable $handler): void {
-        $this->route ( HTTP::METHOD_PATCH, $pattern, $handler );
+        $this->route( HTTP::METHOD_PATCH, $pattern, $handler );
     }
 
     /**
@@ -105,7 +105,7 @@ class RouteCollection {
      * @param callable(array):Response $handler
      */
     public function delete(string $pattern, callable $handler): void {
-        $this->route ( HTTP::METHOD_DELETE, $pattern, $handler );
+        $this->route( HTTP::METHOD_DELETE, $pattern, $handler );
     }
 
     /**
@@ -113,7 +113,7 @@ class RouteCollection {
      * @param callable(array):Response $handler
      */
     public function custom(string $pattern, callable $handler): void {
-        $this->route ( HTTP::METHOD_CUSTOM, $pattern, $handler );
+        $this->route( HTTP::METHOD_CUSTOM, $pattern, $handler );
     }
 
     /**

@@ -40,10 +40,11 @@ interface LoginPortal {
     public function name(): string;
 
     /**
-     * Check if login is visilbe from the current login
+     * LoginPortal permissions with regards to current user
      * @param Login $login
+     * @return UserPermissions
      */
-    public function is_visible_to(Login $login);
+    public function permissions(Login $login): UserPermissions;
 
     /**
      * List of routes
@@ -63,4 +64,5 @@ interface LoginPortal {
      * @return Login
      */
     public function login(): Login;
+
 }

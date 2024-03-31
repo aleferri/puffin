@@ -21,10 +21,7 @@
 
 namespace puffin\auth;
 
-use puffin\http\Request;
-use puffin\http\Response;
-use puffin\http\HTTPServer;
-use puffin\pattern\MatchPattern;
+use puffin\http\RoutesInjector;
 
 /**
  * Description of Realms
@@ -34,9 +31,11 @@ use puffin\pattern\MatchPattern;
 class Realms {
 
     private $list;
+    private $authenticator;
 
-    public function __construct() {
-        $this->list = [];
+    public function __construct(Authenticator $authenticator) {
+        $this->list          = [];
+        $this->authenticator = $authenticator;
     }
 
     public function register(Realm $realm) {
@@ -47,45 +46,34 @@ class Realms {
         return $this->list;
     }
 
-    private function find_realm_of(string $uri, array $params): ?Realm {
-        foreach ( $this->list as $realm ) {
-            $routes = $realm->guarded_routes();
-
-            foreach ( $routes as $route ) {
-                [ $ok, $params ] = MatchPattern::match( $route, $uri );
-
-                if ( $ok ) {
-                    return $realm;
-                }
+    public function realm(string $slug): ?Realm {
+        foreach ( $this->list as $entry ) {
+            if ( $slug === $entry->slug() ) {
+                return $entry;
             }
         }
 
         return null;
     }
 
-    public function prefilter_routes(Request $request, Login $login, array $params): ?Response {
-        $realm = $this->find_realm_of( $request->uri() );
+    public function watch_routes(string $slug, RoutesInjector $injector) {
+        $realm = $this->realm( $slug );
 
-        if ( $realm === null || $realm->is_authenticated( $login, $params, $request->uri() ) ) {
-            return null;
+        if ( $realm === null ) {
+            return false;
         }
 
-        if ( $realm instanceof RealmLoginable ) {
-            $maybe_portal = $realm->authenticate( $login );
+        $guardian = new RealmGuardian( $realm, $this->authenticator );
 
-            if ( $maybe_portal === null ) {
-                return HTTPServer::deny();
-            }
+        $callable = [ $guardian, 'filter' ];
 
-            $maybe_redirect = $maybe_portal->default_route( $login );
+        foreach ( $realm->guarded_routes() as $selector ) {
+            [ $methods, $route ] = $selector;
 
-            if ( $maybe_redirect === null ) {
-                return HTTPServer::deny();
-            }
-
-            return HTTPServer::redirect( $maybe_redirect );
+            $injector->add_filter( $methods, $route, $callable );
         }
 
-        return HTTPServer::deny();
+        return true;
     }
+
 }

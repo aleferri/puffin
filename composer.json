@@ -8,8 +8,7 @@
         },
         "files": [
             "src\\template\\template.php",
-            "src\\lambda\\foundation.php",
-            "src\\data\\factory.php"
+            "src\\lambda\\foundation.php"
         ]
     },
     "repositories": [
