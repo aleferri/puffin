@@ -21,6 +21,11 @@
 
 namespace puffin\auth;
 
+use puffin\http\Request;
+use puffin\http\Response;
+use puffin\http\HTTPServer;
+use puffin\pattern\MatchPattern;
+
 /**
  * Description of Realms
  *
@@ -42,4 +47,45 @@ class Realms {
         return $this->list;
     }
 
+    private function find_realm_of(string $uri, array $params): ?Realm {
+        foreach ( $this->list as $realm ) {
+            $routes = $realm->guarded_routes();
+
+            foreach ( $routes as $route ) {
+                [ $ok, $params ] = MatchPattern::match( $route, $uri );
+
+                if ( $ok ) {
+                    return $realm;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public function prefilter_routes(Request $request, Login $login, array $params): ?Response {
+        $realm = $this->find_realm_of( $request->uri() );
+
+        if ( $realm === null || $realm->is_authenticated( $login, $params, $request->uri() ) ) {
+            return null;
+        }
+
+        if ( $realm instanceof RealmLoginable ) {
+            $maybe_portal = $realm->authenticate( $login );
+
+            if ( $maybe_portal === null ) {
+                return HTTPServer::deny();
+            }
+
+            $maybe_redirect = $maybe_portal->default_route( $login );
+
+            if ( $maybe_redirect === null ) {
+                return HTTPServer::deny();
+            }
+
+            return HTTPServer::redirect( $maybe_redirect );
+        }
+
+        return HTTPServer::deny();
+    }
 }

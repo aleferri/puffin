@@ -76,8 +76,8 @@ class HTTPServer {
                 $_GET,
                 $headers,
                 self::current_origin(),
-                Cookies::recover(),
-                $request_body,
+                                              Cookies::recover(),
+                                        $request_body,
         );
     }
 
@@ -97,7 +97,7 @@ class HTTPServer {
                 $headers,
                 new RequestOrigin( '127.0.0.1', 'none' ),
                 Cookies::recover(),
-                $request_body,
+                                              $request_body,
         );
     }
 
@@ -196,6 +196,15 @@ class HTTPServer {
         return new LazyResponse( 200, $headers, function () use ($filename): string {
                     return file_get_contents( $filename );
                 } );
+    }
+
+    /**
+     * Deny request for insufficient authorization
+     * @param string $body
+     * @return Response
+     */
+    public static function deny(string $body = ''): Response {
+        return new SimpleResponse( 401, [], $body );
     }
 
     /**

@@ -52,6 +52,13 @@ interface LoginPortal {
     public function routes(): array;
 
     /**
+     * Return preferred login route for the current login
+     * @param Login $login
+     * @return string|null
+     */
+    public function default_route(Login $login): ?string;
+
+    /**
      * Force login
      * @return Login
      */

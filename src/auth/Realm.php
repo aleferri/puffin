@@ -54,7 +54,9 @@ interface Realm {
     /**
      * Check if a login can access the realm
      * @param Login $login
+     * @param string $uri
+     * @param array $params
      * @return bool false if the login cannot access, true if it can access
      */
-    public function is_authenticated(Login $login): bool;
+    public function is_permitted(Login $login, string $uri, array $params): bool;
 }
