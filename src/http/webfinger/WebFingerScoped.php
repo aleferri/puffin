@@ -22,35 +22,44 @@
 namespace puffin\http\webfinger;
 
 use plog\Logger;
+use plog\LoggerAware;
 use puffin\log\LoggerSink;
 use puffin\managed\Scope;
 
 /**
- * Description of WebFingerDriver
+ * Description of WebFingerScoped
  *
  * @author Alessio
  */
-class WebFingerDriver implements WebFinger {
+class WebFingerScoped implements WebFingerProtocol, LoggerAware {
 
     private $domain;
     private $base_mount;
-    private $log;
+    private $logger;
 
     public function __construct(string $domain, string $base_mount, ?Logger $logger = null) {
         $this->domain = $domain;
         $this->base_mount = $base_mount;
-        $this->log = $logger;
+        $this->logger = $logger;
 
-        if ( $this->log === null ) {
-            $this->log = LoggerSink::none();
+        if ( $this->logger === null ) {
+            $this->logger = LoggerSink::none();
         }
+    }
+
+    public function logger(): ?Logger {
+        return $this->logger;
+    }
+
+    public function set_logger(Logger $logger) {
+        $this->logger = $logger;
     }
 
     public function query(string $resource_uri, Scope $scope): ?WebFingerResponse {
         [ $kind, $url ] = explode( ':', $resource_uri );
         [ $resource_id, $domain ] = explode( '@', $url );
 
-        $this->log->info( $resource_uri );
+        $this->logger->info( $resource_uri );
 
         if ( $domain !== $this->domain ) {
             return null;
@@ -58,9 +67,9 @@ class WebFingerDriver implements WebFinger {
 
         $uri = $this->base_mount . $kind . '/' . $resource_id;
 
-        $this->log->info( 'URI: {uri}', [ 'uri' => $uri ] );
+        $this->logger->info( 'URI: {uri}', [ 'uri' => $uri ] );
 
-        if ( !$scope->exists( $uri ) ) {
+        if ( ! $scope->exists( $uri ) ) {
             return null;
         }
 
@@ -69,19 +78,19 @@ class WebFingerDriver implements WebFinger {
         $links = $resource->links();
 
         $content = [
-                'subject'    => $resource->uri(),
-                'aliases'    => [],
-                'properties' => [],
-                'links'      => $links
+            'subject'    => $resource->uri(),
+            'aliases'    => [],
+            'properties' => [],
+            'links'      => $links
         ];
 
         $headers = [
-                'Content-Type' => 'application/json'
+            'Content-Type' => 'application/json'
         ];
 
         return new WebFingerResponseSimple(
-                $content,
-                $headers
+            $content, $headers
         );
     }
+
 }

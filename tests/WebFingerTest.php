@@ -38,7 +38,7 @@ class WebFingerTest extends TestCase {
 
         $logger = new LoggerSink( $sink, LOG_INFO );
 
-        $webfinger = new puffin\http\webfinger\WebFingerDriver( 'test.com', '/', $logger );
+        $webfinger = new puffin\http\webfinger\WebFingerScoped( 'test.com', '/', $logger );
 
         $access_policy = new \puffin\managed\AccessPolicyClass( [ '*.*' => [ '*:exists|allow', '*:homepage|allow' ] ] );
 
@@ -54,10 +54,11 @@ class WebFingerTest extends TestCase {
         $scope->register( $manuel );
 
         $response = $webfinger->query(
-                'acct:manuel@test.com', $scope
+            'acct:manuel@test.com', $scope
         );
 
         $this->assertNotEquals( null, $response );
         $this->assertEquals( $manuel->uri(), $response->subject() );
     }
+
 }

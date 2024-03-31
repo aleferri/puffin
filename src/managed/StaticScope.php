@@ -69,7 +69,4 @@ class StaticScope implements Scope {
         return $this->resources[ $resource ] ?? null;
     }
 
-    public function teleports(string $scope): array {
-        return [];
-    }
 }

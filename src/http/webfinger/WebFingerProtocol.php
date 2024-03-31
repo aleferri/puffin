@@ -27,7 +27,7 @@ use puffin\managed\Scope;
  *
  * @author Alessio
  */
-interface WebFinger {
+interface WebFingerProtocol {
 
     /**
      * WebFinger
@@ -36,4 +36,5 @@ interface WebFinger {
      * @return null|WebFingerResponse response
      */
     public function query(string $resource_uri, Scope $scope): ?WebFingerResponse;
+
 }

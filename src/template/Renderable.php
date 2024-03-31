@@ -26,10 +26,25 @@ use puffin\io\Source;
  */
 interface Renderable {
 
+    /**
+     * Make the renderable as a source
+     * @param array $args
+     * @return Source
+     */
     public function as_source(array $args = []): Source;
 
+    /**
+     * Render as text
+     * @param array $args
+     * @return string
+     */
     public function render(array $args = []): string;
 
+    /**
+     * Display as html the rendered content
+     * @param array $args
+     * @return void
+     */
     public function display(array $args = []): void;
 
 }

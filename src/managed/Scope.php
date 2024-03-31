@@ -47,9 +47,4 @@ interface Scope {
      */
     public function actions_for(string $resource): ?array;
 
-    /**
-     * Teleports to other scopes
-     */
-    public function teleports(string $scope): array;
-
 }
