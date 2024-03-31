@@ -21,12 +21,16 @@ class RouteCollection {
     /** @var array<int,array<array{0: string, 1: callable(array): Response}>> */
     private $bins;
 
-    public function __construct() {
-        $this->injector = function (callable $handler, string $pattern, Request $r, array $params): Response {
-            $params[] = $r;
+    public function __construct(callable $injector = null) {
+        if ( $injector === null ) {
+            $this->injector = function (callable $handler, string $pattern, Request $r, array $params): Response {
+                $params[] = $r;
 
-            return $handler( ...$params );
-        };
+                return $handler( ...$params );
+            };
+        } else {
+            $this->injector = $injector;
+        }
 
         $this->bins = [ [], [], [], [], [], [], [], [] ];
     }

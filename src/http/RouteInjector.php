@@ -26,11 +26,11 @@ namespace puffin\http;
  *
  * @author Alessio
  */
-class RoutesInjector {
+class RouteInjector {
 
     private $filters;
 
-    public function __construct(private $forward, private $reject) {
+    public function __construct() {
         $this->filters = [];
     }
 
@@ -45,7 +45,7 @@ class RoutesInjector {
     public function add_filter(string|int|iterable $methods, string $route, callable $callable): self {
         if ( is_iterable( $methods ) ) {
             foreach ( $methods as $method ) {
-                $this->filter( $method, $route, $callable );
+                $this->add_filter( $method, $route, $callable );
             }
 
             return $this;
@@ -58,7 +58,7 @@ class RoutesInjector {
                 if ( is_string( $method ) ) {
                     $method = HTTP::method_id( $method );
                 }
-                $this->filter( $method, $route, $callable );
+                $this->add_filter( $method, $route, $callable );
             }
 
             return $this;
@@ -77,7 +77,7 @@ class RoutesInjector {
         return $this;
     }
 
-    public function run_filters(callable $callable, Request $request, string $route, array $args): Response {
+    public function run_filters(callable $callable, string $route, Request $request, array $args): Response {
         $method = $request->method();
         if ( ! isset( $this->filters[ $method ][ $route ] ) ) {
             return $callable( $request, $args );

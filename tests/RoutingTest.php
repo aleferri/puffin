@@ -7,6 +7,7 @@ use \puffin\http\RequestOrigin;
 use \puffin\http\Response;
 use \puffin\http\SimpleResponse;
 use \puffin\http\RouteCollection;
+use \puffin\http\RouteInjector;
 use \puffin\http\HTTPMethod;
 use \puffin\http\session\Cookies;
 
@@ -65,6 +66,43 @@ final class RoutingTest extends TestCase {
         $this->assertEquals( $response->status(), 200 );
         $this->assertEquals( $response->headers(), [] );
         $this->assertEquals( $response->body(), 'anything' );
+    }
+    
+    public function testMatchOverride(): void {
+        $default = new SimpleResponse( 404 );
+
+        $self = $this;
+
+        $route = function (string $name) use ($self) {
+            $self->assertTrue( false );
+
+            return new SimpleResponse( 200, [], $name );
+        };
+        
+        $injector = new RouteInjector();
+        $injector->add_filter( 'GET', '/@name', function( $request, $route, $params ) {
+            return new SimpleResponse( 200, [], 'override' );
+        } );
+
+        $collection = new RouteCollection( [ $injector, 'run_filters' ] );
+        $collection->get( '/@name', $route );
+
+        $request = new SimpleRequest(
+                HTTPMethod::of( 'GET' ),
+                '/anything',
+                [],
+                [],
+                RequestOrigin::localhost(),
+                Cookies::empty(),
+                null
+        );
+
+        $router = new SimpleRouter( $default );
+        $response = $router->route( $request, $collection );
+
+        $this->assertEquals( $response->status(), 200 );
+        $this->assertEquals( $response->headers(), [] );
+        $this->assertEquals( $response->body(), 'override' );
     }
 
     public function testNestedRoute(): void {

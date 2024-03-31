@@ -33,8 +33,8 @@ use puffin\http\HTTPServer;
 class RealmGuardian {
 
     public function __construct(
-        private $realm,
-        private $authenticator,
+        private Realm $realm,
+        private Authenticator $authenticator,
     ) {
 
     }

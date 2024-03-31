@@ -21,7 +21,7 @@
 
 namespace puffin\auth;
 
-use puffin\http\RoutesInjector;
+use puffin\http\RouteInjector;
 
 /**
  * Description of Realms
@@ -56,7 +56,7 @@ class Realms {
         return null;
     }
 
-    public function watch_routes(string $slug, RoutesInjector $injector) {
+    public function watch_routes(string $slug, RouteInjector $injector) {
         $realm = $this->realm( $slug );
 
         if ( $realm === null ) {
