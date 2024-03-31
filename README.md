@@ -1,5 +1,5 @@
-# Leaf  
-Leaf is PHP library for basic HTTP request routing  
+# Puffin  
+Puffin is PHP library for basic HTTP request routing and some security  
 
 # Example of usage  
 
