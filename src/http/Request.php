@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 /**
  * @author Alessio Ferri
  * @copyright Alessio Ferri
@@ -27,9 +27,15 @@ interface Request {
 
     /**
      * Metodo utilizzato per l'invio
+     * @return HTTPMethod uno dei metodi possibili
+     */
+    public function method(): HTTPMethod;
+
+    /**
+     * Metodo utilizzato per l'invio
      * @return int una delle costanti dichiarate in alto
      */
-    public function method(): int;
+    public function method_id(): int;
 
     /**
      * Metodo in stringa/sottometodo utilizzato per l'invio
@@ -78,4 +84,11 @@ interface Request {
      * @return Cookies list of cookies
      */
     public function cookies(): Cookies;
+
+    /**
+     * List of attributes of the request
+     * @return \ArrayAccess
+     */
+    public function attributes(): \ArrayAccess;
+
 }

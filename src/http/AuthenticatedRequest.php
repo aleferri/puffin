@@ -19,45 +19,36 @@
  * under the License.
  */
 
-namespace puffin\auth;
+namespace puffin\http;
+
+use puffin\auth\Login;
 
 /**
+ * Description of AuthenticatedRequest
  *
  * @author Alessio
  */
-interface Realm {
+class AuthenticatedRequest extends SimpleRequest {
 
-    /**
-     * Realm slug, unique
-     * @return string
-     */
-    public function slug(): string;
+    public function __construct(Request $base, Login $login) {
+        parent::__construct(
+            $base->method_id(), $base->uri(), $base->query(), $base->headers(), $base->body(), $base->cookies()
+        );
+        $this->attributes()[ 'login' ] = $login;
+    }
 
-    /**
-     * Full name
-     * @return string
-     */
-    public function name(): string;
+    public function is_authenticated(): bool {
+        $attributes = $this->attributes();
 
-    /**
-     * Realm routes
-     * @return array
-     */
-    public function routes(): array;
+        return isset( $attributes[ 'login' ] );
+    }
 
-    /**
-     * Realm index
-     * @return string
-     */
-    public function index(): string;
+    public function authentication(): ?Login {
+        if ( $this->is_authenticated() ) {
+            return ($this->attributes())[ 'login' ];
+        }
 
-    /**
-     * Check if a login can access the specified route
-     * @param Login $login
-     * @param string $uri
-     * @param array $params
-     * @return bool false if the login cannot access, true if it can access
-     */
-    public function is_accessible(Login $login, string $method, string $uri, array $params): bool;
+        return null;
+    }
 
 }

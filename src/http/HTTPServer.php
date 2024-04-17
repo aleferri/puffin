@@ -28,8 +28,10 @@ use puffin\http\session\Cookies;
  */
 class HTTPServer {
 
-    public const EMULATE_METHOD_HEADER = 'X-EMULATE-METHOD';
-    public const CUSTOM_METHOD_HEADER  = 'X-CUSTOM-METHOD';
+    public const EMULATE_METHOD_HEADER       = 'X-EMULATE-METHOD';
+    public const OVERRIDE_HTTP_METHOD_HEADER = 'X-HTTP-Method-Override';
+    public const OVERRIDE_METHOD_HEADER      = 'X-Method-Override';
+    public const CUSTOM_METHOD_HEADER        = 'X-CUSTOM-METHOD';
 
     public static function current_origin(): RequestOrigin {
         $ip         = get_any( $_SERVER, 'UNKNOWN', 'HTTP_CLIENT_IP', 'REMOTE_ADDR' );
@@ -42,14 +44,26 @@ class HTTPServer {
         $method = HTTPMethod::of( $request_method );
 
         if ( defined( 'HTTP_EMULATED_METHODS' ) ) {
-            if ( isset( $headers[ EMULATE_METHOD_HEADER ] ) ) {
-                $method = HTTPMethod::emulate( \strtoupper( $headers[ EMULATE_METHOD_HEADER ] ), $request_method );
+            $override_header = self::EMULATE_METHOD_HEADER;
+
+            if ( ! isset( $headers[ $override_header ] ) ) {
+                $override_header = self::OVERRIDE_HTTP_METHOD_HEADER;
             }
+
+            if ( ! isset( $headers[ $override_header ] ) ) {
+                $override_header = self::OVERRIDE_METHOD_HEADER;
+            }
+
+            if ( ! isset( $headers[ $override_header ] ) ) {
+                return $method;
+            }
+
+            $method = HTTPMethod::emulate( \strtoupper( $headers[ $override_header ] ), $request_method );
         }
 
         if ( defined( 'HTTP_CUSTOM_METHODS' ) ) {
-            if ( isset( $headers[ CUSTOM_METHOD_HEADER ] ) ) {
-                $method = HTTPMethod::custom( \strtoupper( $headers[ CUSTOM_METHOD_HEADER ] ), $request_method );
+            if ( isset( $headers[ self::CUSTOM_METHOD_HEADER ] ) ) {
+                $method = HTTPMethod::custom( \strtoupper( $headers[ self::CUSTOM_METHOD_HEADER ] ), $request_method );
             }
         }
 

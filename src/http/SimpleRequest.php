@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 /**
  * @author Alessio Ferri
  * @copyright Alessio Ferri
@@ -49,21 +49,31 @@ class SimpleRequest implements Request {
      */
     private $cookies;
 
+    /**
+     * @var array $attributes
+     */
+    private $attributes;
+
     public function __construct(HTTPMethod $method, string $uri, array $query, array $headers, RequestOrigin $origin, Cookies $cookies, ?RequestBody $body = null) {
-        $this->method = $method;
-        $this->uri = $uri;
-        $this->query = new \puffin\collections\HashMap( $query );
-        $this->headers = $headers;
-        $this->body = $body;
-        $this->origin = $origin;
-        $this->cookies = $cookies;
+        $this->method     = $method;
+        $this->uri        = $uri;
+        $this->query      = new \puffin\collections\HashMap( $query );
+        $this->headers    = $headers;
+        $this->body       = $body;
+        $this->origin     = $origin;
+        $this->cookies    = $cookies;
+        $this->attributes = new \puffin\collections\HashMap();
     }
 
     public function uri(): string {
         return $this->uri;
     }
 
-    public function method(): int {
+    public function method(): HTTPMethod {
+        return $this->method;
+    }
+
+    public function method_id(): int {
         return $this->method->id;
     }
 
@@ -98,4 +108,9 @@ class SimpleRequest implements Request {
     public function cookies(): Cookies {
         return $this->cookies;
     }
+
+    public function attributes(): \ArrayAccess {
+        return $this->attributes;
+    }
+
 }

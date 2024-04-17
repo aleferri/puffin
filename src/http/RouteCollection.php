@@ -15,109 +15,112 @@ namespace puffin\http;
  */
 class RouteCollection {
 
-    /** @var callable(callable(array):Response, Request, array):Response */
-    private $injector;
-
-    /** @var array<int,array<array{0: string, 1: callable(array): Response}>> */
+    /** @var array<int,array<Route>> */
     private $bins;
 
-    public function __construct(callable $injector = null) {
-        if ( $injector === null ) {
-            $this->injector = function (callable $handler, string $pattern, Request $r, array $params): Response {
-                $params[] = $r;
-
-                return $handler( ...$params );
-            };
-        } else {
-            $this->injector = $injector;
-        }
-
-        $this->bins = [ [], [], [], [], [], [], [], [] ];
-    }
-
     /**
-     * Injectors
-     * @return callable(callable(array):Response, Request, array):Response
+     *
+     * @var array<callable>
      */
-    public function injector(): callable {
-        return $this->injector;
+    private $filters;
+
+    public function __construct() {
+        $this->bins    = [ [], [], [], [], [], [], [], [] ];
+        $this->filters = [];
     }
 
     /**
      * Filtra gli handler per metodo utilizzato
      * @param int $method metodo utilizzato
-     * @return array lista degli handler
+     * @return array<Route> lista degli handler
      */
     public function filter_by(int $method): array {
         return $this->bins[ $method ];
     }
 
     /**
+     * Add a filter
+     * @param callable $callable
+     * @return void
+     */
+    public function add_filter(callable $callable): void {
+        $this->filters[] = $callable;
+    }
+
+    /**
+     * List of filters
+     * @return array
+     */
+    public function filters(): array {
+        return $this->filters;
+    }
+
+    /**
      * Register an handler for a pattern received with every method
      */
-    public function any(string $pattern, callable $handler): void {
-        $this->options( $pattern, $handler );
-        $this->get( $pattern, $handler );
-        $this->post( $pattern, $handler );
-        $this->put( $pattern, $handler );
-        $this->patch( $pattern, $handler );
-        $this->delete( $pattern, $handler );
+    public function any(string $pattern, callable $handler, array $metadata = []): void {
+        $this->options( $pattern, $handler, $metadata );
+        $this->get( $pattern, $handler, $metadata );
+        $this->post( $pattern, $handler, $metadata );
+        $this->put( $pattern, $handler, $metadata );
+        $this->patch( $pattern, $handler, $metadata );
+        $this->delete( $pattern, $handler, $metadata );
     }
 
     /**
      * @param string $pattern
      * @param callable(array):Response $handler
      */
-    public function options(string $pattern, callable $handler): void {
-        $this->route( HTTP::METHOD_OPTIONS, $pattern, $handler );
+    public function options(string $pattern, callable $handler, array $metadata = []): void {
+        $this->route( HTTP::METHOD_OPTIONS, $pattern, $handler, $metadata );
     }
 
     /**
      * @param string $pattern
      * @param callable(array):Response $handler
      */
-    public function get(string $pattern, callable $handler): void {
-        $this->route( HTTP::METHOD_GET, $pattern, $handler );
+    public function get(string $pattern, callable $handler, array $metadata = []): void {
+        $this->route( HTTP::METHOD_GET, $pattern, $handler, $metadata );
     }
 
     /**
      * @param string $pattern
      * @param callable(array):Response $handler
      */
-    public function post(string $pattern, callable $handler): void {
-        $this->route( HTTP::METHOD_POST, $pattern, $handler );
+    public function post(string $pattern, callable $handler, array $metadata = []): void {
+        $this->route( HTTP::METHOD_POST, $pattern, $handler, $metadata );
     }
 
     /**
      * @param string $pattern
      * @param callable(array):Response $handler
      */
-    public function put(string $pattern, callable $handler): void {
-        $this->route( HTTP::METHOD_PUT, $pattern, $handler );
+    public function put(string $pattern, callable $handler, array $metadata = []): void {
+        $this->route( HTTP::METHOD_PUT, $pattern, $handler, $metadata );
     }
 
     /**
      * @param string $pattern
      * @param callable(array):Response $handler
      */
-    public function patch(string $pattern, callable $handler): void {
-        $this->route( HTTP::METHOD_PATCH, $pattern, $handler );
+    public function patch(string $pattern, callable $handler, array $metadata = []): void {
+        $this->route( HTTP::METHOD_PATCH, $pattern, $handler, $metadata );
     }
 
     /**
      * @param string $pattern
      * @param callable(array):Response $handler
      */
-    public function delete(string $pattern, callable $handler): void {
-        $this->route( HTTP::METHOD_DELETE, $pattern, $handler );
+    public function delete(string $pattern, callable $handler, array $metadata = []): void {
+        $this->route( HTTP::METHOD_DELETE, $pattern, $handler, $metadata );
     }
 
     /**
      * @param string $pattern
      * @param callable(array):Response $handler
      */
-    public function custom(string $pattern, callable $handler): void {
-        $this->route( HTTP::METHOD_CUSTOM, $pattern, $handler );
+    public function custom(string $pattern, callable $handler, array $metadata = []): void {
+        $this->route( HTTP::METHOD_CUSTOM, $pattern, $handler, $metadata );
     }
 
     /**
@@ -126,16 +129,8 @@ class RouteCollection {
      * @param string $pattern
      * @param callable(array):Response $handler
      */
-    public function route(int $method, string $pattern, callable $handler): void {
-        $this->bins[ $method ][] = [ $pattern, $handler ];
-    }
-
-    /**
-     * Inject dependency on route
-     * @param callable(callable(array):Response, Request, array):Response $injector
-     */
-    public function inject(callable $injector): void {
-        $this->injector = $injector;
+    public function route(int $method, string $pattern, callable $handler, array $metadata = []): void {
+        $this->bins[ $method ][] = new Route( $method, $pattern, $handler, $metadata );
     }
 
 }

@@ -39,11 +39,11 @@ class RealmGuardian {
 
     }
 
-    public function filter(Request $request, string $route, array $params): ?Response {
+    public function filter(Request $request, string $method, string $route, array $params): Request|Response {
         $login = $this->authenticator->authenticate( $request );
 
-        if ( $this->realm->is_authenticated( $login, $params, $route ) ) {
-            return null;
+        if ( $this->realm->is_permitted( $login, $method, $route, $params ) ) {
+            return new \puffin\http\AuthenticatedRequest( $request );
         }
 
         if ( $this->realm instanceof RealmLoginable ) {
@@ -61,6 +61,8 @@ class RealmGuardian {
 
             return HTTPServer::redirect( $maybe_redirect );
         }
+
+        return HTTPServer::deny();
     }
 
 }

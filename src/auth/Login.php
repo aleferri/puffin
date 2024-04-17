@@ -24,7 +24,7 @@ interface Login {
     public function username(): string;
 
     /**
-     * @return array<Grant>
+     * @return array<string>
      * Grants given to the current Login
      */
     public function grants(): array;
@@ -42,7 +42,7 @@ interface Login {
 
     /**
      * Authenticated realms
-     * @return array
+     * @return array<string>
      */
     public function auth_realms(): array;
 

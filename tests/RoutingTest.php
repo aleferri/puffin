@@ -5,9 +5,10 @@ use \puffin\http\SimpleRouter;
 use \puffin\http\SimpleRequest;
 use \puffin\http\RequestOrigin;
 use \puffin\http\Response;
+use \puffin\http\Request;
+use \puffin\http\Route;
 use \puffin\http\SimpleResponse;
 use \puffin\http\RouteCollection;
-use \puffin\http\RouteInjector;
 use \puffin\http\HTTPMethod;
 use \puffin\http\session\Cookies;
 
@@ -16,19 +17,13 @@ final class RoutingTest extends TestCase {
     public function testNotFound(): void {
         $default = new SimpleResponse( 404 );
 
-        $router = new SimpleRouter( $default );
+        $router     = new SimpleRouter( $default );
         $collection = new RouteCollection();
 
         $empty_query = [];
 
         $request = new SimpleRequest(
-                HTTPMethod::of( 'GET' ),
-                '/404',
-                $empty_query,
-                [],
-                RequestOrigin::localhost(),
-                Cookies::empty(),
-                null
+            HTTPMethod::of( 'GET' ), '/404', $empty_query, [], RequestOrigin::localhost(), Cookies::empty(), null
         );
 
         $response = $router->route( $request, $collection );
@@ -41,24 +36,18 @@ final class RoutingTest extends TestCase {
 
         $self = $this;
 
-        $route = function (string $name) use ($self) {
+        $route = function (Request $request, string $name) use ($self) {
             $self->assertEquals( $name, 'anything' );
 
             return new SimpleResponse( 200, [], $name );
         };
 
-        $router = new SimpleRouter( $default );
+        $router     = new SimpleRouter( $default );
         $collection = new RouteCollection();
         $collection->get( '/@name', $route );
 
         $request = new SimpleRequest(
-                HTTPMethod::of( 'GET' ),
-                '/anything',
-                [],
-                [],
-                RequestOrigin::localhost(),
-                Cookies::empty(),
-                null
+            HTTPMethod::of( 'GET' ), '/anything', [], [], RequestOrigin::localhost(), Cookies::empty(), null
         );
 
         $response = $router->route( $request, $collection );
@@ -67,37 +56,36 @@ final class RoutingTest extends TestCase {
         $this->assertEquals( $response->headers(), [] );
         $this->assertEquals( $response->body(), 'anything' );
     }
-    
+
     public function testMatchOverride(): void {
         $default = new SimpleResponse( 404 );
 
         $self = $this;
 
-        $route = function (string $name) use ($self) {
+        $route = function (Request $request, string $name) use ($self) {
             $self->assertTrue( false );
 
             return new SimpleResponse( 200, [], $name );
         };
-        
-        $injector = new RouteInjector();
-        $injector->add_filter( 'GET', '/@name', function( $request, $route, $params ) {
-            return new SimpleResponse( 200, [], 'override' );
-        } );
 
-        $collection = new RouteCollection( [ $injector, 'run_filters' ] );
+        $collection = new RouteCollection();
         $collection->get( '/@name', $route );
-
-        $request = new SimpleRequest(
-                HTTPMethod::of( 'GET' ),
-                '/anything',
-                [],
-                [],
-                RequestOrigin::localhost(),
-                Cookies::empty(),
-                null
+        $collection->add_filter(
+            function (Route $route, $request, $params) {
+                $route->add_filter(
+                    'before', 'override',
+                    function () {
+                        return new SimpleResponse( 200, [], 'override' );
+                    }
+                );
+            }
         );
 
-        $router = new SimpleRouter( $default );
+        $request = new SimpleRequest(
+            HTTPMethod::of( 'GET' ), '/anything', [], [], RequestOrigin::localhost(), Cookies::empty(), null
+        );
+
+        $router   = new SimpleRouter( $default );
         $response = $router->route( $request, $collection );
 
         $this->assertEquals( $response->status(), 200 );
@@ -109,23 +97,20 @@ final class RoutingTest extends TestCase {
         $default = new SimpleResponse( 404 );
 
         $request = new SimpleRequest(
-                HTTPMethod::of( 'GET' ),
-                '/api/protected/v1/ok',
-                [],
-                [],
-                RequestOrigin::localhost(),
-                Cookies::empty(),
-                null
+            HTTPMethod::of( 'GET' ), '/api/protected/v1/ok', [], [], RequestOrigin::localhost(), Cookies::empty(), null
         );
 
-        $router = new SimpleRouter( $default );
+        $router     = new SimpleRouter( $default );
         $collection = new RouteCollection();
 
-        $protected = function () use ($router, $request): Response {
+        $protected = function (Request $request) use ($router): Response {
             $bottomRoutes = new RouteCollection();
-            $bottomRoutes->get( '/api/protected/v1/@name', function (string $name): Response {
-                return new SimpleResponse( 200, [], "OK {$name}" );
-            } );
+            $bottomRoutes->get(
+                '/api/protected/v1/@name',
+                function (Request $request, string $name): Response {
+                    return new SimpleResponse( 200, [], "OK {$name}" );
+                }
+            );
 
             $response = $router->route( $request, $bottomRoutes );
             $this->assertEquals( $response->body(), "OK ok" );
@@ -144,24 +129,19 @@ final class RoutingTest extends TestCase {
 
         $self = $this;
 
-        $route = function (string $name) use ($self) {
+        $route = function (Request $request, string $name) use ($self) {
             $self->assertEquals( $name, 'anything' );
 
             return new SimpleResponse( 200, [], $name );
         };
 
-        $router = new SimpleRouter( $default );
+        $router     = new SimpleRouter( $default );
         $collection = new RouteCollection();
         $collection->put( '/@name', $route );
 
         $request = new SimpleRequest(
-                HTTPMethod::emulate( 'PUT', 'POST' ),
-                '/anything',
-                [],
-                [],
-                RequestOrigin::localhost(),
-                Cookies::empty(),
-                null
+            HTTPMethod::emulate( 'PUT', 'POST' ), '/anything', [], [], RequestOrigin::localhost(), Cookies::empty(),
+            null
         );
 
         $response = $router->route( $request, $collection );
@@ -176,24 +156,19 @@ final class RoutingTest extends TestCase {
 
         $self = $this;
 
-        $route = function (string $name) use ($self) {
+        $route = function (Request $request, string $name) use ($self) {
             $self->assertEquals( $name, 'anything' );
 
             return new SimpleResponse( 200, [], $name );
         };
 
-        $router = new SimpleRouter( $default );
+        $router     = new SimpleRouter( $default );
         $collection = new RouteCollection();
         $collection->custom( 'QUERY /@name', $route );
 
         $request = new SimpleRequest(
-                HTTPMethod::custom( 'QUERY', 'POST' ),
-                '/anything',
-                [],
-                [],
-                RequestOrigin::localhost(),
-                Cookies::empty(),
-                null
+            HTTPMethod::custom( 'QUERY', 'POST' ), '/anything', [], [], RequestOrigin::localhost(), Cookies::empty(),
+            null
         );
 
         $response = $router->route( $request, $collection );
@@ -202,4 +177,5 @@ final class RoutingTest extends TestCase {
         $this->assertEquals( $response->headers(), [] );
         $this->assertEquals( $response->body(), 'anything' );
     }
+
 }
