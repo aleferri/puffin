@@ -67,7 +67,7 @@ class Realms {
 
         $callable = [ $guardian, 'filter' ];
 
-        foreach ( $realm->guarded_routes() as $selector ) {
+        foreach ( $realm->protected_routes() as $selector ) {
             [ $methods, $route ] = $selector;
 
             $injector->add_filter( $methods, $route, $callable );

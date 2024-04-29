@@ -22,17 +22,15 @@ class SimpleRouter implements Router {
             return $this->fast_route( $request, $collection );
         }
 
-        $candidates = $collection->filter_by( $request->method() );
+        $candidates = $collection->filter_by( $request->method_id() );
 
         foreach ( $candidates as $candidate ) {
-            [ $complex_pattern, $handler ] = $candidate;
+            $complex_pattern = $candidate->pattern();
             [ $method, $pattern ] = explode( ' ', $complex_pattern );
             [ $ok, $params ] = $this->match( $request->uri(), $pattern );
 
             if ( $ok && $method === $request->method_name() ) {
-                $injector = $collection->injector();
-
-                return $injector( $handler, $pattern, $request, $params );
+                return $this->apply_filters( $collection, $candidate, $request, $params );
             }
         }
 
@@ -40,16 +38,14 @@ class SimpleRouter implements Router {
     }
 
     public function fast_route(Request $request, RouteCollection $collection): Response {
-        $candidates = $collection->filter_by( $request->method() );
+        $candidates = $collection->filter_by( $request->method_id() );
 
         foreach ( $candidates as $candidate ) {
-            [ $pattern, $handler ] = $candidate;
+            $pattern = $candidate->pattern();
             [ $ok, $params ] = $this->match( $request->uri(), $pattern );
 
             if ( $ok ) {
-                $injector = $collection->injector();
-
-                return $injector( $handler, $pattern, $request, $params );
+                return $this->apply_filters( $collection, $candidate, $request, $params );
             }
         }
 
@@ -84,7 +80,7 @@ class SimpleRouter implements Router {
             }
 
             $matches = [];
-            $result = preg_match( '#^' . $regex . '(?:\?.*)?$#', $uri, $matches );
+            $result  = preg_match( '#^' . $regex . '(?:\?.*)?$#', $uri, $matches );
 
             if ( ! $result ) {
                 return [ false, [] ];
@@ -98,6 +94,45 @@ class SimpleRouter implements Router {
         }
 
         return [ true, $params ];
+    }
+
+    private function apply_filters(RouteCollection $collection, Route $route, Request $request, array $params) {
+        foreach ( $collection->filters() as $filter ) {
+            $filter( $route, $request, $params );
+        }
+
+        $response = $this->execute( $route, $request, $params );
+
+        return $this->filter_response( $route, $request, $params, $response );
+    }
+
+    private function execute(Route $route, Request $request, array $params): Response {
+        foreach ( $route->filters( 'before' ) as $filter ) {
+            $result = $filter( $route, $request, $params );
+
+            if ( $result instanceof Request ) {
+                $request = $result;
+            } else if ( $result instanceof Response ) {
+                return $result;
+            }
+        }
+
+        $handler  = $route->handler();
+        $response = $handler( $request, ...$params );
+
+        return $response;
+    }
+
+    private function filter_response(Route $route, Request $request, array $params, Response $response): ?Response {
+        foreach ( $route->filters( 'after' ) as $filter ) {
+            $result = $filter( $route, $request, $params, $response );
+
+            if ( $result instanceof Request ) {
+                $response = $result;
+            }
+        }
+
+        return $response;
     }
 
 }

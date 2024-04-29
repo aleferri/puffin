@@ -13,7 +13,7 @@ class HashMap implements \ArrayAccess {
 
     private $container;
 
-    public function __construct(array $container) {
+    public function __construct(array $container = []) {
         $this->container = $container;
     }
 
@@ -21,7 +21,7 @@ class HashMap implements \ArrayAccess {
      * @param int|string $offset
      */
     public function offsetExists($offset): bool {
-        return isset ( $this->container[ $offset ] );
+        return isset( $this->container[ $offset ] );
     }
 
     /**
@@ -44,7 +44,7 @@ class HashMap implements \ArrayAccess {
      * @param int|string $offset
      */
     public function offsetUnset($offset): void {
-        unset ( $this->container[ $offset ] );
+        unset( $this->container[ $offset ] );
     }
 
 }
